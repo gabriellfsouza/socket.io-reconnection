@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1 id="users-count">?</h1>
+    <p>Active users on this page</p>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io({
+        reconnection: true,
+        reconnectionDelay: 500,
+        reconnectionAttempts: 5
+      });
+      socket.on("users.count", number => {
+        document.getElementById("users-count").innerHTML = number;
+      });
+
+      // if the server comes back, we'll be able to get a new connection
+      socket.on("reconnect", number => {
+        console.info(
+          `After attempting ${number} times, we finally reconnected`
+        );
+      });
+
+      // this event fires every time we ping the server por a reconnection
+      socket.on("reconnect_attempt", number => {
+        console.info(`Reconnect attempt number ${number}`);
+      });
+
+      // if we have an error connecting, this event will fire
+      socket.on("connect_error", () => {
+        console.warn("Error connecting to Socket.IO");
+      });
+
+      // if we fail to reconenct, this event will fire
+      socket.io("reconnect_failed", () => {
+        console.error("We failed to reconnect to Socket.IO. We give up.");
+      });
+    </script>
+  </body>
+</html>
